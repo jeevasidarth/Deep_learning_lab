@@ -11,6 +11,7 @@ The objectives of this experiment are to:
 - Preprocess image data by flattening $28 \times 28$ matrices into 784-dimensional vectors and normalizing pixel values to $[0, 1]$.
 - Convert integer class labels into one-hot encoded vectors for categorical cross-entropy loss.
 - Construct and train a baseline MLP model with Keras.
+- Demonstrate the non-linear separability limitations of a single-layer perceptron on the XOR logic gate (`xorgate.ipynb`).
 - Perform automated hyperparameter optimization using **RandomizedSearchCV** and **SciKeras**.
 - Evaluate model performance using standard classification metrics (Accuracy, Precision, Recall, F1-Score, Confusion Matrix).
 - Visualize training progress, search results, and model performance comparisons through various plots.
@@ -23,6 +24,7 @@ The objectives of this experiment are to:
 lab2/
 │
 ├── MLP.ipynb
+├── xorgate.ipynb
 ├── requirements.txt
 ├── DATASET.md
 ├── README.md
@@ -94,21 +96,25 @@ The experiment uses:
 
 ---
 
-# Running the Experiment
+## Using the Jupyter Notebooks
 
-## Using the Jupyter Notebook
-
-Open the notebook in Jupyter Notebook, JupyterLab, or VS Code:
+Open the notebooks in Jupyter Notebook, JupyterLab, or VS Code:
 
 ```bash
+# Multi-Layer Perceptron (MLP) Classifier Notebook
 jupyter notebook MLP.ipynb
+
+# Single-Layer Perceptron XOR Gate Analysis Notebook
+jupyter notebook xorgate.ipynb
 ```
 
-Run the notebook sequentially from top to bottom.
+Run the notebooks sequentially from top to bottom.
 
 ---
 
 # Workflow
+
+## 1. Multi-Layer Perceptron (`MLP.ipynb`)
 
 The notebook is organized into the following sections:
 
@@ -167,6 +173,15 @@ Evaluate baseline model on test dataset:
 - Retrain final model on full training set using optimal parameters
 - Evaluate optimized model on testing dataset
 - Plot confusion matrix for optimized model and performance comparison bar chart (Baseline vs Optimized)
+
+---
+
+## 2. XOR Gate Perceptron (`xorgate.ipynb`)
+
+- Define dataset for 2-input XOR logic gate
+- Initialize weights and step activation function
+- Implement forward pass and weight update training loop
+- Plot and save decision boundaries across epochs to analyze why a single-layer perceptron cannot solve non-linearly separable problems like XOR
 
 ---
 
