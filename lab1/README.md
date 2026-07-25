@@ -1,36 +1,40 @@
-# Week 1 - Experiment 1: Perceptron Classifier
+# Week 1 - Experiment 1: Perceptron Classifier & Logic Gates
 
 ## Experiment Objectives
 
-This experiment focuses on understanding and implementing the **Single-Layer Perceptron** algorithm for binary classification using the **Banknote Authentication Dataset**.
+This experiment focuses on understanding and implementing the **Single-Layer Perceptron** algorithm for binary classification across two core tasks:
 
-The objectives of this experiment are to:
+1. **Logic Gates Classification ([logicgates.ipynb](file:///c:/Users/sjeev/Documents/Sem5/Deeplearn_lab/lab1/logicgates.ipynb))**: Implementing Perceptron models to simulate fundamental logic operations (**AND**, **OR**, and **NOT** gates) and visualizing their decision boundaries across training epochs to demonstrate linear separability.
+2. **Banknote Authentication Classification ([perceptronlab1.ipynb](file:///c:/Users/sjeev/Documents/Sem5/Deeplearn_lab/lab1/perceptronlab1.ipynb))**: Building a binary classifier from scratch to distinguish genuine banknotes from forged ones using statistical features extracted from Wavelet Transformed images.
 
-- Understand the working principle of a Single-Layer Perceptron.
-- Implement the Perceptron learning algorithm from scratch using **NumPy**.
-- Perform Exploratory Data Analysis (EDA) on the dataset.
-- Preprocess the data using **Min-Max Scaling**.
-- Train the Perceptron model using gradient-based weight updates.
-- Evaluate the model using standard classification metrics.
-- Visualize the learning process through various plots and decision boundaries.
-- Analyze the effect of different learning rates on convergence.
+The primary learning objectives are:
+- Understand the mathematical foundation of a Single-Layer Perceptron.
+- Implement the step activation function and Perceptron weight update rule from scratch using **NumPy**.
+- Demonstrate linear separability by training Perceptrons on logic gates (**AND**, **OR**, **NOT**).
+- Perform Exploratory Data Analysis (EDA) and feature scaling (**Min-Max Scaling**) on real-world datasets.
+- Train the Perceptron model iteratively, tracking misclassification errors and weight/bias updates over epochs.
+- Evaluate classification performance using Accuracy, Precision, Recall, F1 Score, and Confusion Matrices.
+- Visualize learned decision boundaries and parameter convergence.
 
 ---
 
 # Folder Structure
 
 ```
-Lab-01-Perceptron/
+lab1/
 │
-├── perceptron.ipynb
-├── perceptron.py
-├── data_banknote_authentication.txt
-├── DATASET.md
-├── requirements.txt
-├── report.pdf
-├── README.md
+├── logicgates.ipynb                      # Perceptron implementation for AND, OR, and NOT logic gates
+├── perceptronlab1.ipynb                  # Perceptron classifier for Banknote Authentication dataset
+├── data_banknote_authentication.txt.txt  # Banknote dataset source file
+├── DATASET.md                            # Detailed documentation of the Banknote dataset
+├── requirements.txt                      # Project dependencies
+├── lab_1_perceptron (1).pdf              # Lab experiment reference manual
+├── README.md                             # Experiment documentation
 │
-└── figures/
+└── figures/                              # Generated visualizations and EPS plots
+    ├── AND_Epoch_*.eps
+    ├── OR_Epoch_*.eps
+    ├── NOT_Epoch_*.eps
     ├── Bias_vs_Epoch.eps
     ├── Boxplots.eps
     ├── Confusion_Matrix.eps
@@ -45,31 +49,20 @@ Lab-01-Perceptron/
 
 ---
 
-# Dataset Information
+# Dataset & Task Summary
 
-**Dataset:** Banknote Authentication Dataset
+### 1. Logic Gates Task ([logicgates.ipynb](file:///c:/Users/sjeev/Documents/Sem5/Deeplearn_lab/lab1/logicgates.ipynb))
+Synthetically generated truth table datasets for basic logic gates:
+- **AND Gate:** 2 inputs ($x_1, x_2$), Output $y=1$ only when $x_1=1$ and $x_2=1$.
+- **OR Gate:** 2 inputs ($x_1, x_2$), Output $y=1$ if at least one input is $1$.
+- **NOT Gate:** 1 input ($x_1$), Output $y=1$ when $x_1=0$.
 
-The dataset contains statistical features extracted from Wavelet Transformed images of genuine and forged banknotes.
-
-### Dataset Summary
-
+### 2. Banknote Authentication Task ([perceptronlab1.ipynb](file:///c:/Users/sjeev/Documents/Sem5/Deeplearn_lab/lab1/perceptronlab1.ipynb))
 - **Number of Samples:** 1372
-- **Number of Features:** 4
-- **Target Classes:** 2
+- **Number of Features:** 4 (Variance, Skewness, Curtosis, Entropy)
+- **Target Classes:** 2 (0: Genuine Banknote, 1: Forged Banknote)
 
-| Class | Description |
-|------|-------------|
-| 0 | Genuine Banknote |
-| 1 | Forged Banknote |
-
-### Input Features
-
-- Variance
-- Skewness
-- Curtosis
-- Entropy
-
-For more details, refer to **DATASET.md**.
+For full dataset specs, refer to [DATASET.md](file:///c:/Users/sjeev/Documents/Sem5/Deeplearn_lab/lab1/DATASET.md).
 
 ---
 
@@ -81,168 +74,77 @@ Install the required Python packages using:
 pip install -r requirements.txt
 ```
 
-The experiment uses:
-
-- NumPy
-- Pandas
-- Matplotlib
-- Seaborn
-- Scikit-learn
+Core libraries used:
+- **NumPy** — Matrix operations and weight updates
+- **Pandas** — Data loading and manipulation
+- **Matplotlib & Seaborn** — Decision boundary plots and EDA visualizations
+- **Scikit-learn** — Data splitting and evaluation metrics
 
 ---
 
 # Running the Experiment
 
-There are two ways to execute this experiment.
+There are two primary Jupyter Notebooks for this experiment:
 
-## Option 1: Using the Python Script
+## 1. Logic Gates Implementation ([logicgates.ipynb](file:///c:/Users/sjeev/Documents/Sem5/Deeplearn_lab/lab1/logicgates.ipynb))
 
-Navigate to the experiment directory.
-
-```bash
-cd Lab-01-Perceptron
-```
-
-Run
+Launch the notebook via VS Code, JupyterLab, or Jupyter Notebook:
 
 ```bash
-python perceptron.py
+jupyter notebook logicgates.ipynb
 ```
 
-The script performs the following:
-
-- Loads the Banknote Authentication dataset
-- Performs data preprocessing
-- Normalizes the feature values
-- Splits the dataset into training and testing sets
-- Trains a Perceptron classifier
-- Evaluates model performance
-- Saves all generated figures inside the `figures/` directory
+**Notebook Workflow:**
+1. Defines truth tables for **AND**, **OR**, and **NOT** logic gates.
+2. Implements a Step Activation Function ($f(z) = 1 \text{ if } z \ge 0 \text{ else } 0$).
+3. Implements Perceptron forward pass and training loop with learning rate $\alpha = 0.5$.
+4. Computes weight updates: $w \leftarrow w + \alpha \cdot (y - \hat{y}) \cdot x$.
+5. Plots and exports 2D decision boundary figures (`.eps`) for each training epoch until full convergence.
 
 ---
 
-## Option 2: Using the Jupyter Notebook
+## 2. Banknote Authentication Perceptron ([perceptronlab1.ipynb](file:///c:/Users/sjeev/Documents/Sem5/Deeplearn_lab/lab1/perceptronlab1.ipynb))
 
-Open the notebook.
+Launch the notebook:
 
 ```bash
-jupyter notebook perceptron.ipynb
+jupyter notebook perceptronlab1.ipynb
 ```
 
-or open it directly using VS Code or JupyterLab.
-
-Run the notebook sequentially from top to bottom.
-
----
-
-# Workflow
-
-The notebook is organized into the following sections.
-
-### Task 1 — Exploratory Data Analysis
-
-- Load the dataset
-- Display dataset information
-- Generate descriptive statistics
-- Check for missing values
+**Notebook Workflow:**
+1. **EDA & Visualization:** Loads banknote dataset, inspects feature statistics, plots histograms, scatter plots, boxplots, and correlation heatmaps.
+2. **Preprocessing:** Applies Min-Max Feature Scaling and splits data into training/testing sets.
+3. **Perceptron Training:** Trains a binary Perceptron classifier across multiple epochs.
+4. **Evaluation:** Measures Accuracy, Precision, Recall, F1 Score, and plots Confusion Matrix.
+5. **Model Analysis:** Visualizes decision boundaries, parameter evolution (Weights and Bias vs. Epoch), misclassification convergence, and learning rate sensitivity.
 
 ---
 
-### Task 2 — Data Visualization
+# Key Output Visualizations
 
-Generate visualizations including:
+| Category | Visualizations | Description |
+|----------|----------------|-------------|
+| **Logic Gates** | `AND_Epoch_*.eps` | Epoch-by-epoch decision boundary convergence for 2-input AND gate |
+| | `OR_Epoch_*.eps` | Epoch-by-epoch decision boundary convergence for 2-input OR gate |
+| | `NOT_Epoch_*.eps` | Decision boundary convergence for 1-input NOT gate |
+| **Banknote EDA** | `Histogram.eps` | Distribution of banknote wavelet features |
+| | `Scatter.eps` & `Boxplots.eps` | Feature relationships, spread, and outlier detection |
+| | `Heatmap.eps` | Feature correlation matrix |
+| **Banknote Performance** | `Decision_boundary.eps` | Learned linear boundary separating genuine and forged banknotes |
+| | `Confusion_Matrix.eps` | Classification performance matrix |
+| | `Misclassified_vs_Epoch.eps` | Perceptron convergence plot over epochs |
+| | `LearningRate_vs_Misclassified.eps` | Impact of learning rate variations on model convergence |
+| | `Weights_and_Bias_vs_Epoch.eps` | Trajectory of weights and bias parameters during training |
 
-- Histograms
-- Scatter plots
-- Box plots
-- Correlation heatmap
-
----
-
-### Task 3 — Data Preprocessing
-
-- Feature scaling using Min-Max Scaler
-- Train-Test Split
-
----
-
-### Task 4 — Perceptron Implementation
-
-Implement the Perceptron algorithm from scratch:
-
-- Weight initialization
-- Bias initialization
-- Forward propagation
-- Step activation function
-- Error computation
-- Weight updates
-- Bias updates
-
----
-
-### Task 5 — Model Training
-
-Train the Perceptron over multiple epochs while monitoring:
-
-- Number of misclassified samples
-- Weight updates
-- Bias updates
-
----
-
-### Task 6 — Model Evaluation
-
-Evaluate the trained model using:
-
-- Accuracy
-- Precision
-- Recall
-- F1 Score
-- Confusion Matrix
-
----
-
-### Task 7 — Model Analysis
-
-Visualize the learning behavior of the Perceptron using:
-
-- Bias vs Epoch
-- Misclassified Samples vs Epoch
-- Learning Rate vs Misclassified Samples
-- Weight and Bias Evolution
-- Decision Boundary
-- Confusion Matrix
-
----
-
-# Generated Outputs
-
-Running the notebook/script generates the following visualizations.
-
-| Figure | Description |
-|---------|-------------|
-| Histogram | Distribution of each feature |
-| Scatter Plot | Relationship between selected features |
-| Box Plot | Detection of feature spread and outliers |
-| Heatmap | Feature correlation matrix |
-| Decision Boundary | Learned decision boundary of the Perceptron |
-| Confusion Matrix | Classification performance |
-| Bias vs Epoch | Evolution of bias during training |
-| Misclassified vs Epoch | Training convergence |
-| Learning Rate vs Misclassified | Effect of learning rate |
-| Weights and Bias vs Epoch | Parameter evolution during training |
-
-All generated plots are stored inside the **figures/** directory.
+All generated figures are stored in the [figures](file:///c:/Users/sjeev/Documents/Sem5/Deeplearn_lab/lab1/figures) directory.
 
 ---
 
 # Learning Outcomes
 
-After completing this experiment, you will be able to:
-
-- Understand the Perceptron learning algorithm.
-- Implement a binary classifier from scratch.
-- Perform preprocessing and feature scaling.
-- Analyze classification performance using evaluation metrics.
-- Interpret training convergence through visualizations.
-- Understand how learning rate influences model convergence.
+By completing this experiment, you will learn to:
+- Formulate and code a Single-Layer Perceptron algorithm from scratch.
+- Understand linear separability by demonstrating how Perceptrons solve AND, OR, and NOT gates.
+- Implement step activation functions and error-driven weight update rules.
+- Preprocess real-world dataset features using Min-Max normalization.
+- Analyze model convergence through misclassification plots, decision boundary visualizer, and parameter tracking.
