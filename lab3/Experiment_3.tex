@@ -1,0 +1,438 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,booktabs,array,longtable}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{float}
+\begin{document}
+
+\begin{center}
+\Large\textbf{Shiv Nadar University Chennai}\\[2mm]
+\end{center}
+
+\renewcommand{\arraystretch}{1.4}
+
+\begin{tabular}{|p{3.5cm}|p{8cm}|p{2cm}|}
+\hline
+Degree \& Branch & B.Tech Artificial Intelligence \& Data Science & Semester V\\ \hline
+Subject Code \& Name & CS3807 -- Deep Learning Laboratory & AY: 2026--27\\ \hline
+\end{tabular}
+
+\vspace{3mm}
+
+\begin{center}
+\Large\textbf{Experiment 3}\\
+\large\textbf{Implementation of Convolutional Neural Networks (CNNs) for Image Classification}
+\end{center}
+
+%----------------------------------------------------------
+\section*{1. Objective}
+
+The objective of this experiment is to understand the working principle of Convolutional Neural Networks by implementing convolution, pooling, feature map visualization, and image classification using TensorFlow/Keras on the CIFAR-10 dataset.
+
+%----------------------------------------------------------
+\section*{2. Learning Outcomes}
+
+\begin{enumerate}[leftmargin=*]
+\item Explain the convolution operation.
+\item Compute output dimensions using stride and padding.
+\item Visualize feature maps.
+\item Implement max pooling and average pooling.
+\item Calculate CNN parameters.
+\item Build a CNN for image classification.
+\item Evaluate CNN performance.
+\end{enumerate}
+
+%----------------------------------------------------------
+\section*{3. Background Theory}
+
+A Convolutional Neural Network consists of a Convolution Layer, an Activation Layer, a Pooling Layer, and a Fully Connected Layer.
+
+The convolution operation is
+\[
+Y(i,j) = \sum_m \sum_n X(i+m, j+n)\, K(m,n)
+\]
+where $X$ is the input image, $K$ is the kernel (filter), and $Y$ is the resulting feature map.
+
+The output feature map size is
+\[
+\frac{N - F + 2P}{S} + 1
+\]
+where $N$ = input size, $F$ = filter size, $P$ = padding, and $S$ = stride.
+
+\subsection*{Numerical Example -- Convolution}
+For $X = \begin{bmatrix}1&2&3\\4&5&6\\7&8&9\end{bmatrix}$ and $K = \begin{bmatrix}1&0\\0&1\end{bmatrix}$, the resulting feature map is
+\[
+\begin{bmatrix} 6 & 8 \\ 12 & 14 \end{bmatrix}
+\]
+(e.g.\ top-left value $= 1(1)+2(0)+4(0)+5(1) = 6$).
+
+\subsection*{Numerical Example -- Max Pooling}
+For the $4\times4$ feature map $\begin{bmatrix}1&5&2&3\\7&8&1&0\\4&6&9&5\\2&3&1&8\end{bmatrix}$, a $2\times2$ max-pooling filter (stride 2) gives
+\[
+\begin{bmatrix} 8 & 3 \\ 6 & 9 \end{bmatrix}
+\]
+
+\subsection*{Numerical Example -- Parameter Calculation}
+For a $32\times32\times3$ input and a convolution layer with 16 filters of size $3\times3$:
+\[
+\text{Parameters} = (3\times3\times3+1)\times16 = 28\times16 = 448
+\]
+
+%----------------------------------------------------------
+\section*{4. Dataset Description}
+
+\textbf{Dataset:} CIFAR-10
+
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+Training Images & 50{,}000 \\ \hline
+Testing Images & 10{,}000 \\ \hline
+Classes & 10 \\ \hline
+Image Size & $32 \times 32 \times 3$ \\ \hline
+\end{tabular}
+\end{center}
+
+\textbf{Verified dimensions (from notebook output):}
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+Training images shape & $(50000, 32, 32, 3)$ \\ \hline
+Training labels shape & $(50000, 1)$ \\ \hline
+Testing images shape & $(10000, 32, 32, 3)$ \\ \hline
+Testing labels shape & $(10000, 1)$ \\ \hline
+\end{tabular}
+\end{center}
+
+Pixel values were normalized to $[0,1]$ by dividing by 255 (verified minimum $=0.0$, maximum $=1.0$). The 10 classes are: airplane, automobile, bird, cat, deer, dog, frog, horse, ship, truck -- each with exactly 5{,}000 training images (perfectly balanced).
+
+%----------------------------------------------------------
+\section*{5. Experimental Procedure}
+
+\textbf{Task 1: Dataset Exploration} -- Loaded CIFAR-10, displayed 10 sample images with class labels, printed dataset dimensions, plotted class distribution.
+
+\vspace{2mm}
+\textbf{Task 2: Convolution with Different Kernel Sizes.} An 8-filter convolution was applied to a sample image with \texttt{valid} padding, stride 1, for kernel sizes $3\times3$, $5\times5$, $7\times7$:
+
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+Kernel & Output Shape & Formula Check \\ \hline
+$3\times3$ & $(1,30,30,8)$ & $30\times30$ \\ \hline
+$5\times5$ & $(1,28,28,8)$ & $28\times28$ \\ \hline
+$7\times7$ & $(1,26,26,8)$ & $26\times26$ \\ \hline
+\end{tabular}
+\end{center}
+
+\vspace{2mm}
+\textbf{Task 3: Effect of Stride and Padding} (kernel $3\times3$):
+
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+Stride & Padding & Output Shape \\ \hline
+1 & valid & $(1,30,30,8)$ \\ \hline
+2 & valid & $(1,15,15,8)$ \\ \hline
+1 & same  & $(1,32,32,8)$ \\ \hline
+2 & same  & $(1,16,16,8)$ \\ \hline
+\end{tabular}
+\end{center}
+
+\vspace{2mm}
+\textbf{Task 4: Feature Map Visualization.} The activations of the first convolution layer were extracted for a test image and 8 of the 32 filters were plotted (Figure~\ref{fig:featmaps}).
+
+\vspace{2mm}
+\textbf{Task 5: Max Pooling vs.\ Average Pooling.} An identical architecture was trained with \texttt{AveragePooling2D} replacing \texttt{MaxPooling2D}; results are compared in Section~9.
+
+\vspace{2mm}
+\textbf{Task 6: CNN Construction and Training.}
+\[
+\text{Input} \rightarrow \text{Conv(32,3$\times$3)} \rightarrow \text{ReLU} \rightarrow \text{MaxPool(2$\times$2)} \rightarrow \text{Conv(64,3$\times$3)} \rightarrow \text{ReLU} \rightarrow \text{MaxPool(2$\times$2)} \rightarrow \text{Flatten} \rightarrow \text{Dense(128)} \rightarrow \text{Softmax(10)}
+\]
+
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+Optimizer & Adam \\ \hline
+Loss & Sparse Categorical Crossentropy \\ \hline
+Epochs & 20 \\ \hline
+Batch Size & 32 \\ \hline
+Validation Split & 0.2 \\ \hline
+\end{tabular}
+\end{center}
+
+\textbf{Model Summary (layer-wise parameters):}
+\begin{center}
+\begin{tabular}{|l|l|r|}
+\hline
+Layer (type) & Output Shape & Param \# \\ \hline
+conv2d (Conv2D) & (None, 32, 32, 32) & 896 \\ \hline
+max\_pooling2d (MaxPooling2D) & (None, 16, 16, 32) & 0 \\ \hline
+conv2d\_1 (Conv2D) & (None, 16, 16, 64) & 18{,}496 \\ \hline
+max\_pooling2d\_1 (MaxPooling2D) & (None, 8, 8, 64) & 0 \\ \hline
+flatten (Flatten) & (None, 4096) & 0 \\ \hline
+dense (Dense) & (None, 128) & 524{,}416 \\ \hline
+dense\_1 (Dense) & (None, 10) & 1{,}290 \\ \hline
+\multicolumn{2}{|l|}{\textbf{Total trainable parameters}} & \textbf{545{,}098} \\ \hline
+\end{tabular}
+\end{center}
+
+\vspace{2mm}
+\textbf{Task 7: Evaluation.} Accuracy, precision, recall, F1-score, confusion matrix, and classification report were computed on the test set (Section~9).
+
+%----------------------------------------------------------
+\section*{6. Source Code}
+
+The complete source code for this experiment (Experiment 3: Implementation of Convolutional Neural Networks for Image Classification) is maintained in a GitHub repository. The repository includes the source code (Jupyter notebook), a \texttt{README} describing the project, a requirement list, and execution instructions.
+
+\noindent\textbf{GitHub Repository:}
+
+\url{https://github.com/jeevasidarth/Deep_learning_lab/tree/main/lab3}
+
+%----------------------------------------------------------
+\section*{7. Experimental Results}
+
+CIFAR-10 was loaded with 50{,}000 training and 10{,}000 testing $32\times32\times3$ RGB images across 10 perfectly balanced classes. Pixel values were normalized to $[0,1]$.
+
+The CNN (Conv-ReLU-MaxPool $\times$2, Flatten, Dense-128, Softmax-10; 545{,}098 trainable parameters) was trained for 20 epochs with the Adam optimizer, batch size 32, and a 20\% validation split. Training accuracy climbed steadily from 49.2\% (epoch 1) to 96.5\% (epoch 20), while validation accuracy peaked around 70.6\% near epoch 8 and settled at 67.9\% by epoch 20 -- a clear sign of overfitting, confirmed by validation loss rising continuously from epoch 5 onward while training loss kept falling.
+
+On the held-out test set, the model achieved an accuracy of 66.94\%, with weighted precision 0.6701, weighted recall 0.6694, and weighted F1-score 0.6671. Replacing max pooling with average pooling (identical architecture, 20 epochs) gave a marginally higher test accuracy of 67.44\% and a substantially lower test loss (1.7950 vs.\ 2.2486), suggesting less-overconfident, better-calibrated predictions.
+
+%----------------------------------------------------------
+\section*{8. Mandatory Plots}
+
+\begin{longtable}{|p{3.4cm}|p{3.4cm}|p{6cm}|}
+\hline
+\textbf{Plot} & \textbf{Purpose} & \textbf{Expected Inference}\\
+\hline
+Sample Images & Data Verification & Confirm correct loading and labelling of images.\\
+\hline
+Class Distribution & Balance Check & Verify class balance across the training set.\\
+\hline
+Feature Maps & Filter Visualization & Observe what patterns early filters detect.\\
+\hline
+Training/Validation Accuracy & Learning Behaviour & Detect overfitting via train--val gap.\\
+\hline
+Training/Validation Loss & Learning Behaviour & Confirm convergence and detect overfitting.\\
+\hline
+Confusion Matrix & Performance Evaluation & Identify which classes are most confused.\\
+\hline
+\end{longtable}
+
+%----------------------------------------------------------
+\section*{9.Plots}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{training_samples.png}
+\caption{Sample images from the CIFAR-10 training set with their class labels.}
+\label{fig:samples}
+\end{figure}
+\noindent The sample grid confirms the images are correctly labelled $32\times32\times3$ RGB photographs spanning distinct object categories, and that the pixel data loaded without corruption.
+
+\vspace{4mm}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{class_distribution.eps}
+\caption{Class distribution of the CIFAR-10 training set.}
+\label{fig:classdist}
+\end{figure}
+\noindent CIFAR-10 is perfectly balanced -- each of the 10 classes has exactly 5{,}000 training images, so no class-imbalance correction (e.g.\ class weighting) is required for training.
+
+\vspace{4mm}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{feature_maps.png}
+\caption{Feature maps from the first convolution layer (8 of 32 filters shown) for a test image.}
+\label{fig:featmaps}
+\end{figure}
+\noindent Each filter in the first convolution layer responds to different low-level patterns in the input image -- some activate strongly on edges, others on colour-contrast regions or blobs. This confirms the layer has learned diverse, non-redundant filters rather than duplicating a single pattern.
+
+\vspace{4mm}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{accuracy_plot.eps}
+\caption{Training vs.\ validation accuracy over 20 epochs.}
+\label{fig:acc}
+\end{figure}
+\noindent Training accuracy climbs steadily to 96.5\% while validation accuracy plateaus around 68--70\% after epoch 8--10 and gradually declines slightly thereafter. The widening gap indicates the model is overfitting to the training data in the later epochs.
+
+\vspace{4mm}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{loss_plot.eps}
+\caption{Training vs.\ validation loss over 20 epochs.}
+\label{fig:loss}
+\end{figure}
+\noindent Training loss decreases monotonically to about 0.10, whereas validation loss falls until roughly epoch 5 and then rises continuously to over 2.1 by epoch 20. This divergence is the clearest signal of overfitting: the network is increasingly memorising training examples rather than learning generalisable features.
+
+\vspace{4mm}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{confusion_matrix.eps}
+\caption{Confusion matrix on the CIFAR-10 test set.}
+\label{fig:cm}
+\end{figure}
+\noindent The diagonal dominance shows most predictions are correct, with automobile (78.5\%), frog (82.5\%), ship (79.8\%) and truck (76.2\%) recognised most reliably. The largest confusions are cat$\leftrightarrow$dog (204 dogs predicted as cats) and among the bird/cat/deer/dog animal classes, plus automobile$\leftrightarrow$truck (98 automobiles predicted as trucks) among the vehicle classes.
+
+%----------------------------------------------------------
+\section*{10. Performance Tables}
+
+\textbf{Training Summary}
+
+\begin{tabular}{|p{6cm}|p{7cm}|}
+\hline
+Dataset Size & 50{,}000 train / 10{,}000 test, 10 classes, $32\times32\times3$ \\ \hline
+Normalization & Pixel values scaled to $[0,1]$ \\ \hline
+Optimizer & Adam \\ \hline
+Batch Size & 32 \\ \hline
+Epochs & 20 \\ \hline
+Total Trainable Parameters & 545{,}098 \\ \hline
+Final Training Accuracy & 96.47\% \\ \hline
+Final Validation Accuracy & 67.85\% \\ \hline
+Test Accuracy & 66.94\% \\ \hline
+Test Loss & 2.2486 \\ \hline
+Precision (weighted) & 0.6701 \\ \hline
+Recall (weighted) & 0.6694 \\ \hline
+F1-score (weighted) & 0.6671 \\ \hline
+\end{tabular}
+
+\vspace{3mm}
+
+\textbf{Epoch-wise Training Progress}
+
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+Epoch & Train Accuracy & Train Loss & Val Accuracy & Val Loss \\ \hline
+1  & 0.4918 & 1.4150 & 0.5992 & 1.1524 \\ \hline
+5  & 0.7480 & 0.7252 & 0.6905 & 0.9279 \\ \hline
+10 & 0.8701 & 0.3723 & 0.6972 & 1.0438 \\ \hline
+15 & 0.9439 & 0.1641 & 0.6815 & 1.6455 \\ \hline
+20 & 0.9647 & 0.1015 & 0.6785 & 2.1307 \\ \hline
+\end{tabular}
+
+\vspace{3mm}
+
+\textbf{Confusion Matrix (Test Set)}
+
+\begin{center}
+\begin{tabular}{|l|c|c|c|c|c|c|c|c|c|c|}
+\hline
+ & air. & auto. & bird & cat & deer & dog & frog & horse & ship & truck \\ \hline
+airplane   & 688 & 17  & 64  & 22  & 39  & 14  & 24  & 13  & 76  & 43 \\ \hline
+automobile & 21  & 785 & 9   & 10  & 7   & 4   & 23  & 6   & 37  & 98 \\ \hline
+bird       & 55  & 9   & 470 & 92  & 114 & 64  & 112 & 49  & 22  & 13 \\ \hline
+cat        & 22  & 16  & 46  & 488 & 73  & 155 & 112 & 44  & 19  & 25 \\ \hline
+deer       & 16  & 5   & 49  & 64  & 611 & 61  & 102 & 77  & 10  & 5  \\ \hline
+dog        & 11  & 7   & 42  & 204 & 47  & 534 & 68  & 68  & 12  & 7  \\ \hline
+frog       & 1   & 11  & 33  & 56  & 35  & 21  & 825 & 6   & 5   & 7  \\ \hline
+horse      & 20  & 9   & 28  & 50  & 73  & 47  & 20  & 733 & 3   & 17 \\ \hline
+ship       & 51  & 42  & 13  & 20  & 18  & 4   & 19  & 6   & 798 & 29 \\ \hline
+truck      & 33  & 96  & 9   & 24  & 11  & 8   & 16  & 16  & 25  & 762 \\ \hline
+\end{tabular}
+\end{center}
+
+\vspace{3mm}
+
+\textbf{Max Pooling vs.\ Average Pooling Comparison}
+
+\begin{tabular}{|c|c|c|}
+\hline
+Pooling Type & Test Accuracy & Test Loss \\ \hline
+Max Pooling     & 0.6694 & 2.2486 \\ \hline
+Average Pooling & 0.6744 & 1.7950 \\ \hline
+\end{tabular}
+
+Output shape after one pooling layer (identical for both): $(1, 16, 16, 3)$.
+
+%----------------------------------------------------------
+\section*{11. Discussion}
+
+\textbf{1. Why is convolution preferred over fully connected layers for images?} \\
+Convolution uses local, weight-shared filters, so the parameter count does not scale with image size, and the network learns spatially-invariant features (an edge detector works the same anywhere in the image). A fully connected layer would need a separate weight per pixel per neuron, which is computationally infeasible for realistic image sizes and ignores spatial structure entirely.
+
+\textbf{2. How does stride affect the feature map size?} \\
+A larger stride moves the kernel by more pixels each step, so it visits fewer positions and the output feature map shrinks faster. As shown in Task 3, stride 2 roughly halves the spatial dimensions compared to stride 1.
+
+\textbf{3. What is the role of padding?} \\
+Padding adds extra pixels (typically zeros) around the input's border. `Same' padding compensates for pixels lost at the edges so the output matches the input size; `valid' padding adds none, so the output shrinks with every convolution.
+
+\textbf{4. Why is pooling used?} \\
+Pooling downsamples feature maps, reducing spatial dimensions and the parameter count of later layers, which lowers computation and makes the network more robust to small translations or distortions in the input.
+
+\textbf{5. How do feature maps represent image characteristics?} \\
+Each feature map is the response of one learned filter across the whole image. Early-layer feature maps (Figure~\ref{fig:featmaps}) highlight low-level patterns such as edges and colour contrasts, while deeper-layer feature maps represent increasingly abstract, class-relevant patterns such as shapes and object parts.
+
+\textbf{6. Why do CNNs require fewer parameters than MLPs?} \\
+CNNs share the same small set of kernel weights across all spatial locations (weight sharing) and connect only to a local receptive field, instead of connecting every input pixel to every neuron as an MLP does -- this drastically cuts the parameter count for the same input size.
+
+%----------------------------------------------------------
+\section*{12. Additional Exercises}
+
+\begin{enumerate}[leftmargin=*]
+
+\item \textbf{Output size for a $64\times64$ image, $5\times5$ kernel, stride 2, padding 2:}
+\[
+\frac{N - F + 2P}{S} + 1 = \frac{64 - 5 + 2(2)}{2} + 1 = \frac{63}{2} + 1 \approx 31.5 + 1 \rightarrow 32
+\]
+giving a $32\times32$ output (TensorFlow computes the floor of the fraction internally).
+
+\item \textbf{Trainable parameters -- 64 filters of size $3\times3$, RGB input (3 channels):}
+\[
+(3 \times 3 \times 3 + 1) \times 64 = 28 \times 64 = 1792
+\]
+
+\item \textbf{ReLU vs.\ Sigmoid:} ReLU outputs $\max(0,x)$ -- computationally cheap and avoids vanishing gradients for positive inputs, making it the default for hidden CNN layers. Sigmoid squashes outputs to $(0,1)$, is costlier, and suffers from vanishing gradients at extreme values, so it is mainly reserved for binary output layers rather than hidden layers.
+
+\item \textbf{Max Pooling vs.\ Average Pooling:} As shown in Section~10, average pooling gave marginally higher accuracy (67.44\% vs.\ 66.94\%) and substantially lower test loss (1.795 vs.\ 2.249) in this run, suggesting slightly better generalisation and calibration for this architecture.
+
+\item \textbf{Increasing filters 16$\rightarrow$64:} More filters allow each convolution layer to learn more distinct feature detectors, generally improving accuracy up to a point of diminishing returns, at the cost of higher parameter count, memory usage, and training time per epoch.
+
+\end{enumerate}
+
+%----------------------------------------------------------
+\section*{13. Conclusion}
+
+A CNN with two convolution--pooling blocks (545{,}098 trainable parameters) was successfully implemented and trained on CIFAR-10, achieving 66.94\% test accuracy after 20 epochs with the Adam optimizer. Training accuracy (96.47\%) substantially exceeded validation (67.85\%) and test (66.94\%) accuracy, and validation loss rose continuously from epoch 5 onward while training loss kept falling -- both clear indicators of overfitting in the later epochs. Techniques such as dropout, data augmentation, batch normalization, or early stopping would likely close this generalisation gap. The confusion matrix shows the model struggles most with visually similar animal classes (cat/dog/bird/deer) and between automobile and truck, while performing strongly on automobile, frog, ship, and truck. Average pooling performed marginally better than max pooling in this configuration, both in accuracy and test loss, suggesting it may be the preferable choice for this architecture.
+
+%----------------------------------------------------------
+\section*{14. Report Contents}
+
+The report includes:
+\begin{itemize}
+\item Objective
+\item Learning Outcomes
+\item Background Theory
+\item Dataset Description
+\item Experimental Procedure
+\item Source Code
+\item Experimental Results
+\item Mandatory Plots
+\item Generated Plots with Interpretation
+\item Performance Tables
+\item Discussion
+\item Additional Exercises
+\item Conclusion
+\item References
+\end{itemize}
+
+%----------------------------------------------------------
+\section*{15. References}
+
+\begin{enumerate}
+\item I. Goodfellow, Y. Bengio and A. Courville, \emph{Deep Learning}, MIT Press, 2016.
+\item C. M. Bishop, \emph{Pattern Recognition and Machine Learning}, Springer, 2006.
+\item S. Haykin, \emph{Neural Networks and Learning Machines}, Pearson, 2009.
+\item TensorFlow Documentation, \url{https://www.tensorflow.org/}.
+\item CIFAR-10 Dataset Documentation, \url{https://www.cs.toronto.edu/~kriz/cifar.html}.
+\end{enumerate}
+
+\end{document}
