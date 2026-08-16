@@ -33,6 +33,15 @@ The experiments in this repository are organized as follows:
   - Detailed classification report and diagonal confusion matrix analysis.
 - **Technologies:** TensorFlow, Keras, Matplotlib, Seaborn.
 
+### 📂 [lab4](file:///c:/Users/sjeev/Documents/Sem5/Deeplearn_lab/lab4) - Experiment 4: Comparative Study of Deep CNN Architectures Using Transfer Learning
+- **Topic:** Image classification on CIFAR-10 using pre-trained VGG16 (Transfer Learning).
+- **Tasks:**
+  - Feature extraction training with frozen VGG16 base and custom classification head.
+  - Fine-tuning by unfreezing the last convolutional block (`block5`) and training at a lower learning rate.
+  - Evaluation of model improvement before and after fine-tuning.
+  - Generation of detailed classification report and Seaborn confusion matrix.
+- **Technologies:** TensorFlow, Keras, NumPy, Scikit-learn, Matplotlib, Seaborn.
+
 ---
 
 ## Getting Started
