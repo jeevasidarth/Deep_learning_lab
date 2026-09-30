@@ -1,0 +1,49 @@
+\begin{table}[htbp]
+\centering
+\caption{Consolidated test-set results (2{,}000 images).}
+\label{tab:consolidated}
+\begin{tabular}{lrrrrr}
+\toprule
+Model & MSE & MAE & SSIM & Parameters & Time (s) \\
+\midrule
+FC Autoencoder & 0.01992 & 0.05442 & 0.7749 & 211040 & 12.0 \\
+Conv. Autoencoder & 0.00264 & 0.01554 & 0.9725 & 74497 & 20.7 \\
+Denoising CAE & 0.00444 & 0.02111 & 0.9480 & 74497 & 17.8 \\
+VAE & 0.05474 & 0.12666 & 0.3661 & 134165 & 26.9 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{Latent-dimension study for the fully connected autoencoder.}
+\label{tab:dz}
+\begin{tabular}{rrrr}
+\toprule
+Latent dimension & MSE & SSIM & Parameters \\
+\midrule
+2 & 0.04718 & 0.4729 & 210130 \\
+8 & 0.02595 & 0.7107 & 210520 \\
+16 & 0.02025 & 0.7712 & 211040 \\
+32 & 0.01919 & 0.7814 & 212080 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{VAE loss terms on the test set (per image).}
+\label{tab:vae}
+\begin{tabular}{lr}
+\toprule
+Metric & Value \\
+\midrule
+Reconstruction loss & 176.266 \\
+KL loss & 3.857 \\
+Total loss & 180.123 \\
+Test MSE & 0.05474 \\
+Test MAE & 0.12666 \\
+Mean SSIM & 0.3661 \\
+\bottomrule
+\end{tabular}
+\end{table}
